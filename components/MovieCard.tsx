@@ -30,7 +30,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, observerRef }) =>
           src={
             movie.poster_path
               ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-              : "/no-image.jpg"
+              : "/no-image.png"
           }
           alt={movie.title}
           width={300}

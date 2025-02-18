@@ -51,7 +51,7 @@ const MovieDetailsModal: React.FC<MovieDetailsModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="relative h-[400px]">
               <Image
-                src={`https://image.tmdb.org/t/p/w500${movieDetails.poster_path}`}
+                src={movieDetails.poster_path ? `https://image.tmdb.org/t/p/w500${movieDetails.poster_path}` : "/no-image.png"}
                 alt={`Movie poster for ${movieDetails.title}`}
                 fill
                 priority
