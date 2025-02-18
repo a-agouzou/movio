@@ -1,22 +1,24 @@
 import { Movie } from "@/types/movie";
 import Image from "next/image";
+import React from "react";
 interface MovieCardProps {
   movie: Movie;
   onClick: (movie: Movie) => void;
+  observerRef?: (node: HTMLDivElement | null) => void;
 }
 
-const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick }) => {
+const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, observerRef }) => {
   return (
     <div
       className="cursor-pointer bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
       onClick={() => onClick(movie)}
+      ref={observerRef}
     >
       <div className="relative h-[300px]">
         <Image
           src={
             movie.poster_path
               ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-              // : "https://placehold.co/300x400?text=No+Image"
               : "/no-image.jpg"
           }
           alt={movie.title}
@@ -40,3 +42,4 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick }) => {
 };
 
 export default MovieCard;
+
