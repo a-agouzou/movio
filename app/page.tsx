@@ -7,20 +7,27 @@ import {
 } from "@tanstack/react-query";
 import { useState, useEffect, useRef, useCallback } from "react";
 import MovieCard from "@/components/MovieCard";
-import { MovieDetailsModal } from "@/components/MovieDetailsModal";
+import MovieSearch from "@/components/MovieSearch";
+import MovieDetailsModal from "@/components/MovieDetailsModal";
 import { Movie } from "@/types/movie";
 import { getPopularMovies, searchMovies } from "@/lib/api";
 import { useDebounce } from "@/lib/useDebounce";
 
 const queryClient = new QueryClient();
 
-function MovieExplorer() {
+const MovieExplorer = () => {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearch = useDebounce(searchValue, 500) as string;
   const observer = useRef<IntersectionObserver | null>(null);
 
-  
+  const fetchMovies = async (search: string, page: number) => {
+    const result = search.trim()
+      ? await searchMovies(search, page)
+      : await getPopularMovies(page);
+    return result;
+  };
+
   const {
     data,
     isLoading,
@@ -31,18 +38,12 @@ function MovieExplorer() {
     refetch,
   } = useInfiniteQuery({
     queryKey: ["movies", debouncedSearch],
-    queryFn: async ({ pageParam = 1 }) => {
-      const result = debouncedSearch.trim()
-        ? await searchMovies(debouncedSearch, pageParam)
-        : await getPopularMovies(pageParam);
-      return result;
-    },
+    queryFn: ({ pageParam = 1 }) => fetchMovies(debouncedSearch, pageParam),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.total_pages ? lastPage.page + 1 : undefined,
-    staleTime: 5 * 60 * 1000 * 24,
+    staleTime: 24 * 60 * 60 * 1000,
   });
-
 
   const lastItemRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -59,11 +60,6 @@ function MovieExplorer() {
     },
     [fetchNextPage, hasNextPage, isFetchingNextPage]
   );
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-    queryClient.invalidateQueries({ queryKey: ["movies"] });
-  };
 
   const clearSearch = () => {
     setSearchValue("");
@@ -82,13 +78,7 @@ function MovieExplorer() {
     <div className="container mx-auto">
       <div className="p-4">
         <div className="relative">
-          <input
-            type="text"
-            value={searchValue}
-            onChange={handleSearch}
-            placeholder="Search for a movie..."
-            className="w-full px-4 py-2 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all"
-          />
+          <MovieSearch onSearch={setSearchValue} />
           {searchValue && (
             <button
               onClick={clearSearch}
@@ -155,7 +145,7 @@ function MovieExplorer() {
       />
     </div>
   );
-}
+};
 
 export default function Home() {
   return (
