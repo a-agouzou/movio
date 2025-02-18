@@ -1,8 +1,13 @@
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription} from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { getMovieDetails } from "@/lib/api";
-import { Movie, MovieDetails } from "@/types/movie";
+import { Movie } from "@/types/movie";
 import Image from "next/image";
 
 interface MovieDetailsModalProps {
@@ -11,31 +16,35 @@ interface MovieDetailsModalProps {
   onClose: () => void;
 }
 
-export function MovieDetailsModal({ movie, isOpen, onClose }: MovieDetailsModalProps) {
+const MovieDetailsModal: React.FC<MovieDetailsModalProps> = ({
+  movie,
+  isOpen,
+  onClose,
+}) => {
   const { data: movieDetails, isLoading } = useQuery({
-    queryKey: ['movie', movie?.id],
-    queryFn: () => movie ? getMovieDetails(movie.id) : null,
+    queryKey: ["movie", movie?.id],
+    queryFn: () => (movie ? getMovieDetails(movie.id) : null),
     enabled: !!movie,
-    staleTime: 5 * 60 * 1000,
-    // cacheTime: 30 * 60 * 1000,
+    staleTime: 24 * 60 * 60 * 1000,
   });
 
   return (
-<Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {isLoading ? "Loading..." : movieDetails?.title}
           </DialogTitle>
           {movieDetails && (
             <DialogDescription>
-              Released: {new Date(movieDetails.release_date).toLocaleDateString()}
+              Released:
+              {new Date(movieDetails.release_date).toLocaleDateString()}
             </DialogDescription>
           )}
         </DialogHeader>
 
         {isLoading ? (
-          <div className="flex items-center justify-center h-[400px]">
+          <div className="flex items-center justify-center md:h-[400px] h-full">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
           </div>
         ) : movieDetails ? (
@@ -54,7 +63,7 @@ export function MovieDetailsModal({ movie, isOpen, onClose }: MovieDetailsModalP
               <div aria-label="Movie overview">
                 <p className="text-gray-600">{movieDetails.overview}</p>
               </div>
-              
+
               <div className="space-y-2">
                 <dl className="space-y-2">
                   <div className="flex">
@@ -67,7 +76,11 @@ export function MovieDetailsModal({ movie, isOpen, onClose }: MovieDetailsModalP
                   </div>
                   <div className="flex">
                     <dt className="font-semibold w-24">Genres:</dt>
-                    <dd>{movieDetails.genres.map(genre => genre.name).join(", ")}</dd>
+                    <dd>
+                      {movieDetails.genres
+                        .map((genre) => genre.name)
+                        .join(", ")}
+                    </dd>
                   </div>
                 </dl>
               </div>
@@ -77,4 +90,6 @@ export function MovieDetailsModal({ movie, isOpen, onClose }: MovieDetailsModalP
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default MovieDetailsModal;
