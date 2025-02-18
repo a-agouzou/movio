@@ -1,7 +1,6 @@
 import { Movie } from "@/types/movie";
 import Image from "next/image";
 import React from "react";
-
 interface MovieCardProps {
   movie: Movie;
   onClick: (movie: Movie) => void;
@@ -9,7 +8,7 @@ interface MovieCardProps {
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({ movie, onClick, observerRef }) => {
-
+  
   const raitingFormatter : (raiting : Number | null | undefined) => string = (raiting) => {
     if(raiting === null || raiting === undefined || Number.isNaN(raiting)) return "N/A";
     return raiting.toFixed(1);
